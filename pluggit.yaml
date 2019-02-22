@@ -16,7 +16,6 @@ pluggit:
         visu_acl: rw
         pluggit_listen: prmRomIdxSpeedLevel
         pluggit_send: prmRomIdxSpeedLevel
-        sqlite: yes
 
     remainingFilterLifetime:
         type: num
@@ -38,25 +37,21 @@ pluggit:
         visu_acl: ro
         pluggit_listen: prmRamIdxT1
         visu_acl: ro
-        sqlite: yes
 
     zuluft:
         type: num
         visu_acl: ro
         pluggit_listen: prmRamIdxT2
-        sqlite: yes
 
     abluft:
         type: num
         visu_acl: ro
         pluggit_listen: prmRamIdxT3
-        sqlite: yes
 
     fortluft:
         type: num
         visu_acl: ro
         pluggit_listen: prmRamIdxT4
-        sqlite: yes
 
     bypassState:
         type: str
