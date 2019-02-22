@@ -1,0 +1,74 @@
+pluggit:
+    type: foo
+
+    unitMode:
+        type: str
+        visu_acl: ro
+        pluggit_listen: prmRamIdxUnitMode
+
+    weekProgram:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmNumOfWeekProgram
+
+    fanSpeed:
+        type: num
+        visu_acl: rw
+        pluggit_listen: prmRomIdxSpeedLevel
+        pluggit_send: prmRomIdxSpeedLevel
+        sqlite: yes
+
+    remainingFilterLifetime:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmFilterRemainingTime
+
+    fan1rpm:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmHALTaho1
+
+    fan2rpm:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmHALTaho2
+
+    frischluft:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmRamIdxT1
+        visu_acl: ro
+        sqlite: yes
+
+    zuluft:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmRamIdxT2
+        sqlite: yes
+
+    abluft:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmRamIdxT3
+        sqlite: yes
+
+    fortluft:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmRamIdxT4
+        sqlite: yes
+
+    bypassState:
+        type: str
+        visu_acl: ro
+        pluggit_listen: prmRamIdxBypassActualState
+
+    bypassTmin:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmBypassTmin
+
+    bypassTmax:
+        type: num
+        visu_acl: ro
+        pluggit_listen: prmBypassTmax
