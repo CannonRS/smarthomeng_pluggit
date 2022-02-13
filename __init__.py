@@ -273,6 +273,7 @@ class Pluggit(SmartPlugin):
         self.alive = True
 
     def stop(self):
+        self.scheduler_remove(__name__)
         self.alive = False
 
     def parse_item(self, item):
@@ -320,7 +321,7 @@ class Pluggit(SmartPlugin):
                         else:
                             self.logger.warn('Umwandlung von {} zu {} bei Item {} nicht zulässig.'.format(pluggit_paramList[self.DICT_VALUE_TYPE], convType, item))
                     if value is not None:
-                        if pluggit_paramList[self.DICT_VALUE_TYPE] == 'uint' or pluggit_paramList[self.DICT_VALUE_TYPE] == 'timestamp':
+                        if pluggit_paramList[self.DICT_VALUE_TYPE] == 'uint' or pluggit_paramList[self.DICT_VALUE_TYPE] == 'bool' or pluggit_paramList[self.DICT_VALUE_TYPE] == 'timestamp':
                             writeItemValue = value & 0xFFFF, value >> 16 & 0xFFFF
                         if pluggit_paramList[self.DICT_VALUE_TYPE] == 'str':
                             writeItemValue = self.StringToBinWord(value, pluggit_paramList[self.DICT_ADDRESS_QUANTITY])
@@ -454,6 +455,7 @@ class Pluggit(SmartPlugin):
                     registerValue = readCacheDictionary[pluggit_key] 
                 else:
                     registerValue = self._Pluggit.read_holding_registers(pluggit_paramList[self.DICT_READ_ADDRESS], pluggit_paramList[self.DICT_ADDRESS_QUANTITY])
+                    # TODO: auswerten, wenn Reigister nicht auslesbar
                     readCacheDictionary[pluggit_key] = registerValue
                 vdecoder = BinaryPayloadDecoder.fromRegisters(registerValue.registers, byteorder=Endian.Big, wordorder=Endian.Little)
 
@@ -495,6 +497,13 @@ class Pluggit(SmartPlugin):
                 if pluggit_paramList[self.DICT_VALUE_TYPE] == 'version_bcd':
                     vresult = vdecoder.decode_16bit_uint()
                     readItemValue = '{}.{}{}'.format(vresult >> 12 & 0x0F, vresult >> 8 & 0x0F, vresult >> 4 & 0x0F, vresult & 0x0F)
+
+                if pluggit_paramList[self.DICT_VALUE_TYPE] == 'weekprogram':
+                    # 6 Register, 1 h = 4 Bit, 2 h = 8 bit, 4 h = 16 bit = 1 Register
+                    #readItemValue = registerValue.registers
+                    #readItemValue = str(registerValue.registers[0] & 0x0F)
+                    #self.logger.info('{}'.format(readItemValue))
+                    pass
 
                 # check for conversion
                 convItemValue = None
