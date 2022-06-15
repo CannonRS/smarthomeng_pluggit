@@ -1,7 +1,7 @@
 # smarthomeng_pluggit
 SmartHomeNG plugin pluggit
 
-Das ist die erst Beta-version von dem neuen pluggit-Plugin.
+Das ist lauffähige Version vom neuen pluggit-Plugin.
 
 Folgende Vorteile ergeben sich zu dem alten:
 - wesentlich mehr Parameter der pluggit können abgefragt werden
@@ -10,5 +10,4 @@ Folgende Vorteile ergeben sich zu dem alten:
 
 Es fehlen auch noch ein paar Dinge:
 - die Programmierung des Auto-Wochenprogramms ist noch nicht implementiert
-- diverse Fehlerprüfungen und Ausgaben sollen noch durchgeführt werden
 - eine Dokumentation der Parameter
