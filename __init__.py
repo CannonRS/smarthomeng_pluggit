@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 #########################################################################
-#  Copyright 2020 Ronny Schulz
+#  Copyright 2020-22 Ronny Schulz
 #########################################################################
 #
 #  This file is part of SmartHomeNG.
@@ -35,8 +35,7 @@ from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.payload import BinaryPayloadBuilder
 
 class Pluggit(SmartPlugin):
-
-    PLUGIN_VERSION="2.0.0b1"
+    PLUGIN_VERSION="2.0.2"
 
     _itemReadDictionary = {}
     _itemWriteDictionary = {}
@@ -184,12 +183,12 @@ class Pluggit(SmartPlugin):
 
     _RamIdxUnitModeDic = {
         'UM_DemandMode': [0x0002, -1, 'Demand Mode'],
-        'UM_ManualMode': [ 0x0004, -1, 'Manual Mode'],
+        'UM_ManualMode': [0x0004, -1, 'Manual Mode'],
         'UM_WeekProgramMode': [0x0008, -1, 'Week Program Mode',],
-        'UN_AwayMode': [ 0x0010, 0x8010, 'Away Mode',],
+        'UM_AwayMode': [0x0010, 0x8010, 'Away Mode',],
         'UM_NightMode': [0x0020, 0x8020, 'Night Mode'],
         'UM_FireplaceMode': [0x0040, 0x8040, 'Fireplace Mode',],
-        'UM_ManualBypass': [0x0080, 0x08080, 'Manual Bypass'],
+        'UM_ManualBypass': [0x0080, 0x8080, 'Manual Bypass'],
         'UM_SummerMode': [0x0800, 0x8800, 'Summer Mode']
     }
 
@@ -285,7 +284,7 @@ class Pluggit(SmartPlugin):
                 self._itemReadDictionary[item] = pluggit_key
                 self.logger.debug("Pluggit: Inhalt des dicts _itemReadDictionary nach Zuweisung zu item: '{0}'".format(self._itemReadDictionary))
             else:
-                self.logger.warn("Pluggit: invalid key {0} configured".format(pluggit_key))
+                self.logger.warning("Pluggit: invalid key {0} configured".format(pluggit_key))
         # check for smarthome.py attribute 'pluggit_write' in pluggit.conf
         if self.has_iattr(item.conf, 'pluggit_write'):
             self.logger.debug("Pluggit: parse write item: {0}".format(item))
@@ -295,7 +294,7 @@ class Pluggit(SmartPlugin):
                 self.logger.debug("Pluggit: Inhalt des dicts _itemWriteDictionary nach Zuweisung zu write item: '{0}'".format(self._itemWriteDictionary))
                 return self.update_item
             else:
-                self.logger.warn("Pluggit: invalid key {0} configured".format(pluggit_key))
+                self.logger.warning("Pluggit: invalid key {0} configured".format(pluggit_key))
         else:
             return None
 
@@ -319,7 +318,7 @@ class Pluggit(SmartPlugin):
                         if convType in pluggit_paramList[self.DICT_ALLOWED_CONV_LIST]:
                             value = self.ConvertValueFromItem(value, convType, pluggit_sendkey)
                         else:
-                            self.logger.warn('Umwandlung von {} zu {} bei Item {} nicht zulässig.'.format(pluggit_paramList[self.DICT_VALUE_TYPE], convType, item))
+                            self.logger.warning('Umwandlung von {} zu {} bei Item {} nicht zulässig.'.format(pluggit_paramList[self.DICT_VALUE_TYPE], convType, item))
                     if value is not None:
                         if pluggit_paramList[self.DICT_VALUE_TYPE] == 'uint' or pluggit_paramList[self.DICT_VALUE_TYPE] == 'bool' or pluggit_paramList[self.DICT_VALUE_TYPE] == 'timestamp':
                             writeItemValue = value & 0xFFFF, value >> 16 & 0xFFFF
@@ -327,10 +326,10 @@ class Pluggit(SmartPlugin):
                             writeItemValue = self.StringToBinWord(value, pluggit_paramList[self.DICT_ADDRESS_QUANTITY])
                         if writeItemValue is not None:
                             # write values to pluggit via modbus client registers
-                            self.logger.info('VALUE: {}'.format(writeItemValue))
+                            self.logger.debug('VALUE: {}'.format(writeItemValue))
                             self._Pluggit.write_registers(pluggit_paramList[self.DICT_WRITE_ADDRESS], writeItemValue)
                 else:
-                    self.logger.warn("Parameter {} bei Item {} kann nur gelesen werden.".format(pluggit_sendkey, item))
+                    self.logger.warning("Parameter {} bei Item {} kann nur gelesen werden.".format(pluggit_sendkey, item))
 
     def BinWordToString(self, binWord):
         result = ''
@@ -358,10 +357,10 @@ class Pluggit(SmartPlugin):
             result.append(binval1 | binval2 << 8)
         return result
 
-    def SetUnitMode(self, modeKey, enable):
+    def SetUnitMode(self, modekey, enable):
         if 'prmRamIdxUnitMode' in self._modbusRegisterDictionary:
-            if modeKey in self._RamIdxUnitModeDic:
-                unitmode = self._RamIdxUnitModeDic[modeKey]
+            if modekey in self._RamIdxUnitModeDic:
+                unitmode = self._RamIdxUnitModeDic[modekey]
                 if bool(enable):
                     unitstate = unitmode[self.UM_DICT_VALUE_ENABLE]
                 else:
@@ -371,13 +370,19 @@ class Pluggit(SmartPlugin):
                     registerValue = self._Pluggit.read_holding_registers(pluggit_paramList[self.DICT_READ_ADDRESS], pluggit_paramList[self.DICT_ADDRESS_QUANTITY])
                     vdecoder = BinaryPayloadDecoder.fromRegisters(registerValue.registers, byteorder=Endian.Big, wordorder=Endian.Little)
                     readItemValue = vdecoder.decode_16bit_uint()
-                    if readItemValue & unitstate != unitstate:
-                        self._Pluggit.write_registers(pluggit_paramList[self.DICT_WRITE_ADDRESS], unitstate)
-                        time.sleep(0.5)
+                    #if readItemValue & unitstate != unitstate:
+                        # workaround for manual bypass timeout
+                    self.logger.info('SetUnitMode(): Mode \"{}\".'.format(modekey))
+                        #if modekey == 'UM_ManualBypass' & bool(enable):
+                            #self._Pluggit.write_registers(pluggit_paramList[self.DICT_WRITE_ADDRESS], unitmode[self.UM_DICT_VALUE_DISABLE])
+                            #time.sleep(0.5)
+                        # write value to registers
+                    self._Pluggit.write_registers(pluggit_paramList[self.DICT_WRITE_ADDRESS], unitstate)
+                    time.sleep(0.5)
             else:
-                self.logger.debug('SetUnitMode(): Illegal mode \"{}\".'.format(modekey))
+                self.logger.warning('SetUnitMode(): Illegal mode \"{}\".'.format(modekey))
         else:
-            self.logger.debug('SetUnitMode(): Parameter \"prmRamIdxUnitMode\" for UnitMode not found in dictionary.')
+            self.logger.warning('SetUnitMode(): Parameter \"prmRamIdxUnitMode\" for UnitMode not found in dictionary.')
 
     def ConvertValueFromItem(self, value, conversionType, pluggitKey):
         conversionValue = None
@@ -403,7 +408,7 @@ class Pluggit(SmartPlugin):
             else:
                 conversionValue = self._RamIdxUnitModeDic[conversionType][self.UM_DICT_VALUE_DISABLE]
 
-        self.logger.info("conVersion: {}".format(conversionValue))
+        self.logger.debug("conVersion: {}".format(conversionValue))
         return conversionValue
 
     def ConvertValueToItem(self, value, conversionType, pluggitKey):
@@ -514,14 +519,14 @@ class Pluggit(SmartPlugin):
                             convItemValue = self.ConvertValueToItem(readItemValue, convType, pluggit_key)
                             if convItemValue is not None:
                                 item(convItemValue, 'Pluggit')
-#                            else:
-#                                self.logger.warn("Fehler bei der Umwandlung von Item {}.".format(item))
+                            else:
+                                self.logger.warning("Fehler bei der Umwandlung von Item {}.".format(item))
                         else:
                             self.logger.warn("Umwandlung von {} zu {} bei Item {} nicht zulässig.".format(pluggit_paramList[self.DICT_VALUE_TYPE], convType, item))
                     else:
                         if readItemValue is not None:
                             item(readItemValue, 'Pluggit')
-#                        else:
-#                            self.logger.warn("Unbekannter Wert-Typ: {} bei Item {}.".format(pluggit_paramList[self.DICT_VALUE_TYPE]), item)
+                        else:
+                            self.logger.warning("Unbekannter Wert-Typ: {} bei Item {}.".format(pluggit_paramList[self.DICT_VALUE_TYPE]), item)
 
             time.sleep(0.1)

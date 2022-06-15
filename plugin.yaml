@@ -11,7 +11,7 @@ plugin:
     keywords: modbus
 #    documentation:
 #    support:
-    version: 2.0.0b1                # Plugin version
+    version: 2.0.2                  # Plugin version
     sh_minversion: 1.4c             # minimum shNG version to use this plugin
 #    sh_maxversion:                 # maximum shNG version to use this plugin (leave empty if latest)
     multi_instance: False           # plugin supports multi instance
@@ -354,6 +354,13 @@ item_structs:
                     pluggit_write: prmRomIdxNightModeEndMin
                     visu_acl: rw
 
+            ManualBypass:
+                type: bool
+                pluggit_read: prmRamIdxUnitMode
+                pluggit_write: prmRamIdxUnitMode
+                pluggit_convert: UM_ManualBypass
+                visu_acl: rw
+
         FanSpeedLevel:
             type: num
             pluggit_read: prmRomIdxSpeedLevel
@@ -508,6 +515,7 @@ item_structs:
 
             ManualMode:
                 type: bool
+                enforce_updates: yes
                 pluggit_read: prmRamIdxUnitMode
                 pluggit_write: prmRamIdxUnitMode
                 pluggit_convert: UM_ManualBypass
