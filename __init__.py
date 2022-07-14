@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 #
 #########################################################################
-#  Copyright 2020-22 Ronny Schulz
+# Copyright 2017 Henning Behrend
+# Copyright 2020-2022 Ronny Schulz
 #########################################################################
 #
 #  This file is part of SmartHomeNG.
