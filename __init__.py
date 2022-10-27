@@ -29,14 +29,25 @@ import threading
 import logging
 from lib.model.smartplugin import SmartPlugin
 
-# pymodbus library from https://code.google.com/p/pymodbus/
-from pymodbus.client.sync import ModbusTcpClient
+# pymodbus library from https://github.com/riptideio/pymodbus
+
+#from pymodbus.client.tcp import ModbusTcpClient
+#from pymodbus.client import ModbusTcpClient
+#from pymodbus.client.sync import ModbusTcpClient
+
+try:
+    # for newer versions of pymodbus
+    from pymodbus.client.tcp import ModbusTcpClient
+except:
+    # for older versions of pymodbus
+    from pymodbus.client.sync import ModbusTcpClient
+
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.payload import BinaryPayloadBuilder
 
 class Pluggit(SmartPlugin):
-    PLUGIN_VERSION="2.0.2"
+    PLUGIN_VERSION="2.0.3"
 
     _itemReadDictionary = {}
     _itemWriteDictionary = {}
