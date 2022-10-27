@@ -1,53 +1,55 @@
-# plex
+# pluggit
+SmartHomeNG plugin pluggit
 
-Plugin to send push notifications to Plex clients like RasPlex.
-I only have tested the plugin with RasPlex, the notification module should also be compatible with OpenElec, XBMC / Kodi Frodo and higher.
+Das SmartHomeNG plugin für eine Pluggit AP310 KWL
 
-## Installation
-
-```
-cd smarthome.py directory
-cd plugins
-git clone https://github.com/rthill/plex.git
-```
-
-## Configuration
-
-### plugin.yaml
-
-```yaml
-plex:
-    class_name: Plex
-    class_path: plugins.plex
-    displaytime: 6500 # Default is 6000 (6 sec)
-```
-
-### items.yaml
-```
-mm:
-
-    gf:
-
-        living:
-
-            plex:
-                type: foo
-                plex_host: rasplex.plugin.lu
-                plex_port: 3005    # Optional: default is 3005
-```
-
-## Usage
-
-To send notifications use the following syntax in your logics:
+## Einbindung in der plugin.yaml mit:
 
 ```python
-# Default informational notification
-sh.plex.notify('Door', 'Ding Dong\nFront door')
-sh.plex.notify('Door', 'Ding Dong\nFront door', 'info')
-
-# Warning notification
-sh.plex.notify('Door', 'Garage door is open for 1 hour', 'warning')
-
-# Error notification
-sh.plex.notify('Logic XYZ', 'Execution failed ....', 'error')
+pluggit:
+    class_name: Pluggit
+    class_path: plugins.pluggit
+    host: 192.168.1.4
+    #cycle: 300
 ```
+
+host = IP-Adresse der pluggit  
+cycle = Update-Interfall der abzufragenden Werte (optional)
+
+## Einbindung in den Items per Item-Struct:
+
+```python
+struct: pluggit.pluggit
+```
+
+## Änderungen:
+
+V2.0.3 - 25.10.2022
+- Support für pymodbus 3.0
+
+22.05.2022:
+- Fehler mit manuellem Bypass behoben
+
+16.02.2022:
+- CurentUnitMode.ManualBypass dem Item-struct zugefügt
+- Log-Level für verschiedene Ausgaben angepasst
+- CurrentUnitMode.AwayMode repariert
+
+24.02.2021:
+- Item-struct um Zugriffe für SmartVISU erweitert
+- item_attribut um pluggit_convert erweitert
+- scheduler.remove eingebaut
+
+29.08.2020:
+ - bool-Werte konnten nicht geschrieben werden
+
+## Folgende Vorteile ergeben sich zu dem Plugin 1.x
+
+- wesentlich mehr Parameter der pluggit können abgefragt werden
+- einige Parameter lassen sich auch schreiben
+- die Werte können intern auch konvertiert werden, sodass man eine vernünftige Ausgabe erhält
+
+## Es fehlen auch noch ein paar Dinge:
+
+- die Programmierung des Auto-Wochenprogramms ist noch nicht implementiert
+- eine Dokumentation der Parameter
